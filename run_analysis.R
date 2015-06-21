@@ -45,8 +45,11 @@ colNames <- colnames(finalData)
 
 ## STEP 2 : Extract measurements on the mean and standard deviation for each measurement
 
-# Creating a variable to store the logical values for the required variables of mean and standard deviations for each measurement
-req_feat = (grepl("Activity..",colNames) | grepl("subject..",colNames) | grepl("-mean..",colNames) & !grepl("-meanFreq..",colNames) & !grepl("mean..-",colNames) | grepl("-std..",colNames) & !grepl("-std()..-",colNames))
+# Creating a variable to store the logical values for the required variables of
+# mean and standard deviations for each measurement
+req_feat = (grepl("Activity..",colNames) | grepl("subject..",colNames) | grepl("-mean..",colNames) & 
+            !grepl("-meanFreq..",colNames) & !grepl("mean..-",colNames) | grepl("-std..",colNames) & 
+            !grepl("-std()..-",colNames))
 
 # Extracting the required values from the cumulative dataset to form the required dataset
 finalData <- finalData[req_feat == TRUE]
@@ -89,8 +92,10 @@ colnames(finalData) <- colNames
 # Refining the data set to exclude the factor variable 'Activity_Type' 
 re_finalData  = finalData[, names(finalData) != 'Activity_Type']
 
-# Creating a tidy data set by calculating the required averages by activity and subject, using the 'Activity_ID' & 'subject_ID' variables from the refined data set
-tidyData = aggregate(re_finalData[, names(re_finalData) != c("Activity_ID","subject_ID")], by=list(Activity_ID=re_finalData$Activity_ID, subject_ID = re_finalData$subject_ID), mean)
+# Creating a tidy data set by calculating the required averages by activity and subject, 
+# using the 'Activity_ID' & 'subject_ID' variables from the refined data set
+tidyData = aggregate(re_finalData[, names(re_finalData) != c("Activity_ID","subject_ID")], 
+                        by=list(Activity_ID=re_finalData$Activity_ID, subject_ID = re_finalData$subject_ID), mean)
 
 # Adding the activity IDs to create the final tidy data set
 tidyData = merge(tidyData, activity, by = 'Activity_ID', all.x = TRUE)
