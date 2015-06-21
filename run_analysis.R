@@ -1,6 +1,8 @@
 # Setting the working directory
 setwd("UCI HAR Dataset/")
 
+## STEP 1 : Merge the training and test data sets to create one data set 
+
 # Reading the required variables of features and activities
 features <- read.table("features.txt", header = FALSE)
 activity <- read.table("activity_labels.txt", header = FALSE)
@@ -34,19 +36,34 @@ colnames(yTest) <- "Activity_ID"
 # Binding the various data into a single Testing set data
 testData <- cbind(yTest, subjectTest, xTest)
 
-# Merging the curated Training and Testing datasets
+# Merging and curating the Training and Testing datasets into a single data set
 finalData <- rbind(trainData, testData)
-colNames <- colnames(finalData)
 
-# Creating a variable to store the logical values for the required variables of mean and standard deviations
+# Creating a vector to store the column names of the merged data set
+colNames <- colnames(finalData)
+#-----------------------------------------------------------------------------------------#
+
+## STEP 2 : Extract measurements on the mean and standard deviation for each measurement
+
+# Creating a variable to store the logical values for the required variables of mean and standard deviations for each measurement
 req_feat = (grepl("Activity..",colNames) | grepl("subject..",colNames) | grepl("-mean..",colNames) & !grepl("-meanFreq..",colNames) & !grepl("mean..-",colNames) | grepl("-std..",colNames) & !grepl("-std()..-",colNames))
 
 # Extracting the required values from the cumulative dataset to form the required dataset
 finalData <- finalData[req_feat == TRUE]
+#-----------------------------------------------------------------------------------------#
+
+## STEP 3 : Use descriptive activity names to name the activites in the data set
+
+# Merging the required data sorted by their respective Activity IDs and naming the activities accordingly
 finalData <- merge(finalData, activity, by = "Activity_ID",all.x = TRUE)
+
+# Updating the vector to store the newly included activity names
 colNames <- colnames(finalData)
+#-----------------------------------------------------------------------------------------#
 
+## STEP 4 : Appropriately labels the data set with descriptive variable names
 
+#  Substituting the variable names in the vector containing them (colNames), with more apt labels
 for (i in 1:length(colNames)) 
 {
     colNames[i] = gsub("\\()","",colNames[i])
@@ -63,12 +80,20 @@ for (i in 1:length(colNames))
     colNames[i] = gsub("GyroMag","GyroMagnitude",colNames[i])
 }
 
+# Using the new labels to name the various columns in the data set appropriately
 colnames(finalData) <- colNames
+#----------------------------------------------------------------------------------------#
 
+## STEP 5 : Create a second, independent tidy data set with the average of each variable for each activity and each subject
+
+# Refining the data set to exclude the factor variable 'Activity_Type' 
 re_finalData  = finalData[, names(finalData) != 'Activity_Type']
 
+# Creating a tidy data set by calculating the required averages by activity and subject, using the 'Activity_ID' & 'subject_ID' variables from the refined data set
 tidyData = aggregate(re_finalData[, names(re_finalData) != c("Activity_ID","subject_ID")], by=list(Activity_ID=re_finalData$Activity_ID, subject_ID = re_finalData$subject_ID), mean)
 
+# Adding the activity IDs to create the final tidy data set
 tidyData = merge(tidyData, activity, by = 'Activity_ID', all.x = TRUE)
 
+# Writing the tidy data set to a text file named 'tidyData'
 write.table(tidyData, './tidyData.txt', row.names = FALSE, sep='\t')
