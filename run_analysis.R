@@ -97,7 +97,7 @@ re_finalData  = finalData[, names(finalData) != 'Activity_Type']
 tidyData = aggregate(re_finalData[, names(re_finalData) != c("Activity_ID","subject_ID")], 
                         by=list(Activity_ID=re_finalData$Activity_ID, subject_ID = re_finalData$subject_ID), mean)
 
-# Adding the activity IDs to create the final tidy data set
+# Merging the tidy data set with the activity IDs to include descriptive variable names
 tidyData = merge(tidyData, activity, by = 'Activity_ID', all.x = TRUE)
 
 # Writing the tidy data set to a text file named 'tidyData'
